@@ -1,0 +1,4 @@
+Model,RMSE,MAE,MAPE
+RNN,,,
+LSTM,,,
+GRU,,,
