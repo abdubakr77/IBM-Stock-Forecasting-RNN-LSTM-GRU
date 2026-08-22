@@ -7,3 +7,15 @@ def count_outliers_iqr(series):
     lower = q1 - 1.5 * iqr
     upper = q3 + 1.5 * iqr
     return ((series < lower) | (series > upper)).sum()
+
+def check_ohlc_validity(data):
+    invalid_high = (data["High"] < data["Open"]) | (data["High"] < data["Close"]) | (data["High"] < data["Low"])
+    invalid_low = (data["Low"] > data["Open"]) | (data["Low"] > data["Close"]) | (data["Low"] > data["High"])
+    invalid_rows = invalid_high | invalid_low
+    print("invalid OHLC rows:", invalid_rows.sum())
+    return invalid_rows
+
+def check_negative_prices(data):
+    negative_rows = (data["Open"] <= 0) | (data["Close"] <= 0) | (data["High"] <= 0) | (data["Low"] <= 0)
+    print("negative or zero price rows:", negative_rows.sum())
+    return negative_rows
