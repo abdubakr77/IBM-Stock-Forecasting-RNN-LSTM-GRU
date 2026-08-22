@@ -1,5 +1,7 @@
 """Shared helper functions used across the project."""
 
+import numpy as np
+
 def count_outliers_iqr(series):
     q1 = series.quantile(0.25)
     q3 = series.quantile(0.75)
@@ -19,3 +21,16 @@ def check_negative_prices(data):
     negative_rows = (data["Open"] <= 0) | (data["Close"] <= 0) | (data["High"] <= 0) | (data["Low"] <= 0)
     print("negative or zero price rows:", negative_rows.sum())
     return negative_rows
+
+def calculate_volatility(data, window=20):
+    data = data.copy()
+    data["daily_return"] = data["Close"].pct_change()
+    data["volatility"] = data["daily_return"].rolling(window=window).std()
+    return data
+
+def calculate_bullish_bearish(data):
+    data = data.copy()
+    data["candle_type"] = np.where(data["Close"] > data["Open"], "bullish",
+                            np.where(data["Close"] < data["Open"], "bearish", "neutral"))
+    print(data["candle_type"].value_counts())
+    return data
