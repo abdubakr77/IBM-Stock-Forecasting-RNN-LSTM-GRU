@@ -4,9 +4,10 @@ import pandas as pd
 
 
 def load_data(dataset_path:str):
-    df = pd.read_csv(dataset_path)
-    df["Date"] = pd.to_datetime(df["Date"])
-    df = df.sort_values("Date").reset_index(drop=True)
+    data = pd.read_csv(dataset_path)
+    data["Date"] = pd.to_datetime(data["Date"])
+    data = data.sort_values("Date").reset_index(drop=True)
+    return data
 
 
 def remove_negative_prices(data):
@@ -45,3 +46,9 @@ def remove_return_outliers(data, upper=0.3, lower=-0.2):
     return data.reset_index(drop=True)
 
 
+def feature_extraction(data):
+    data["Daily Return"] = data["Close"].pct_change()
+    data["high_low_range"] = data["High"] - data["Low"]
+    data["open_close_range"] = (data["Close"] - data["Open"]).abs()
+    data = calculate_volatility(data, 5)
+    return data
