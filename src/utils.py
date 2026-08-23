@@ -25,7 +25,7 @@ def check_negative_prices(data):
 def calculate_volatility(data, window=20):
     data = data.copy()
     data["daily_return"] = data["Close"].pct_change()
-    data["volatility"] = data["daily_return"].rolling(window=window).std()
+    data["Volatility"] = data["daily_return"].rolling(window=window).std()
     return data
 
 def calculate_bullish_bearish(data):
