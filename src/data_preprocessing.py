@@ -107,3 +107,7 @@ def create_sequences(data_set_scaled, timesteps=60):
 
     print(f'Sequences Created Successfully, Sequences Counts: {len(X)}')
     return np.array(X), np.array(y)
+
+
+def reshape_data(X_data, timesteps, num_features):
+    return X_data.reshape(-1,timesteps,num_features)
