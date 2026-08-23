@@ -20,3 +20,14 @@ def remove_negative_prices(data):
     return data.reset_index(drop=True)
 
 
+def remove_invalid_ohlc(data):
+    invalid_rows = check_ohlc_validity(data)
+    invalid_indices = invalid_rows[invalid_rows == True].index.values
+    if len(invalid_indices):
+        print(f"invalid OHLC rows found: {len(invalid_indices)}, removing them")
+        data.drop(data.iloc[invalid_indices].index.values, inplace=True)
+    else:
+        print("no invalid OHLC rows found")
+    return data.reset_index(drop=True)
+
+
