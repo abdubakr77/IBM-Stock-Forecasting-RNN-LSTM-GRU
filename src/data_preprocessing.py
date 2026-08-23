@@ -97,3 +97,12 @@ def norm_transform(train_set,valid_set,test_set):
     valid_set_scaled = scaler.transform(valid_set)
     test_set_scaled = scaler.transform(test_set)
     return train_set_scaled, valid_set_scaled, test_set_scaled
+
+
+def create_sequences(data_set_scaled, timesteps=60):
+    X , y = [], []
+    for i in range(timesteps, len(data_set_scaled)):
+        X.append(data_set_scaled[i - timesteps:i])
+        y.append(data_set_scaled[i])
+
+    return np.array(X), np.array(y)
