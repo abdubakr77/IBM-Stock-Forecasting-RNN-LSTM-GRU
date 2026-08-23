@@ -41,3 +41,18 @@ def calculate_bullish_bearish(data):
                             np.where(data["Close"] < data["Open"], "bearish", "neutral"))
     print(data["candle_type"].value_counts())
     return data
+
+def load_model_data(file_path):
+    """
+    Load all dataset splits from a pickle file and return them.
+    """
+    with open(file_path, 'rb') as f:
+        all_data = pickle.load(f)
+        
+    print("All data successfully loaded and ready for the model!")
+    
+    return (
+        all_data['X_train'], all_data['y_train'],
+        all_data['X_val'], all_data['y_val'],
+        all_data['X_test'], all_data['y_test']
+    )
