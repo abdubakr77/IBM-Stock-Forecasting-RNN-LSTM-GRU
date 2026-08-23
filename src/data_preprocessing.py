@@ -35,6 +35,8 @@ def feature_engineering(data):
     data["High Low Range"] = data["High"] - data["Low"]
     data["Open Close Range"] = (data["Close"] - data["Open"]).abs()
     data = calculate_volatility(data, 5)
+    data.drop(data.index[:5],inplace=True)
+    print('First 5 NaN Values Removed Cause the volatility')
     return data[['Open', 'High', 'Low', 'Close', "Daily Return", 'Volume', "Volatility", "Open Close Range", "High Low Range"]]
 
 
