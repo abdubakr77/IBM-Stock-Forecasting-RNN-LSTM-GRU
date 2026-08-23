@@ -144,6 +144,6 @@ def prepare_model_data(data,year_splits:list,timesteps,num_features, save_dir=os
 
     return (
         all_data['X_train'], all_data['y_train'],
-        all_data['X_val'], all_data['y_val'],
+        all_data['X_valid'], all_data['y_valid'],
         all_data['X_test'], all_data['y_test']
     )
