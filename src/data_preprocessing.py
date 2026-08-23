@@ -32,23 +32,22 @@ def remove_invalid_ohlc(data):
     return data.reset_index(drop=True)
 
 
+def feature_engineering(data):
+    data["Daily Return"] = data["Close"].pct_change()
+    data["High Low Range"] = data["High"] - data["Low"]
+    data["Open Close Range"] = (data["Close"] - data["Open"]).abs()
+    data = calculate_volatility(data, 5)
+    return data[['Date', 'Open', 'High', 'Low', 'Close', "Daily Return", 'Volume', "Volatility", "Open Close Range", "High Low Range"]]
+
+
 def remove_return_outliers(data, upper=0.3, lower=-0.2):
     data = data.copy()
-    data["daily_return"] = data["Close"].pct_change()
-    mask = (data["daily_return"] < upper) & (data["daily_return"] > lower) | (data["daily_return"].isna())
+    mask = (data["Daily Return"] < upper) & (data["Daily Return"] > lower) | (data["Daily Return"].isna())
     removed = len(data) - mask.sum()
     if removed:
-        print(f"return outlier rows found: {removed}, removing them")
+        print(f"return outlier rows found: {removed}, Removed Successfully!")
     else:
         print("no return outlier rows found")
     data = data[mask]
-    data = data.drop(columns=["daily_return"])
+    data = data.drop(columns=["Daily Return"])
     return data.reset_index(drop=True)
-
-
-def feature_extraction(data):
-    data["Daily Return"] = data["Close"].pct_change()
-    data["high_low_range"] = data["High"] - data["Low"]
-    data["open_close_range"] = (data["Close"] - data["Open"]).abs()
-    data = calculate_volatility(data, 5)
-    return data
