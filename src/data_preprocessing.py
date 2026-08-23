@@ -1,7 +1,7 @@
 """Load raw IBM stock data, clean it, scale it, and create train/valid/test sequences."""
 from src.utils import check_negative_prices, check_ohlc_validity, calculate_volatility
 import pandas as pd
-
+import os
 
 def load_data(dataset_path:str):
     data = pd.read_csv(dataset_path)
@@ -51,3 +51,31 @@ def remove_return_outliers(data, upper=0.3, lower=-0.2):
     data = data[mask]
     data = data.drop(columns=["Daily Return"])
     return data.reset_index(drop=True)
+
+
+def preprocess_pipeline(data, save_dir = os.getcwd()):
+    data = data.copy()
+
+    num_duplicates = data['Date'].duplicated().sum()
+    if num_duplicates:
+        data['Date'].drop_duplicates(inplace=True)
+        print(f'Warning: There is {num_duplicates} Data Duplicates, Removed Successfully!')
+
+    data['Volume'] = data['Volume'].apply(lambda x: float(x.replace(',','')))
+
+    before = len(data)
+
+    data = remove_negative_prices(data)
+    data = remove_invalid_ohlc(data)
+
+    num_columns = len(data.columns)
+    data = feature_engineering(data)
+    print(f"Feature Engineered Successfully, Columns Before: {num_columns}, Columns After: {len(data.columns)}")
+
+    data = remove_return_outliers(data)
+
+    print(f"rows before: {before}, rows after: {len(data)}, total removed: {before - len(data)}")
+
+    if save_dir:
+        data.to_csv(os.path.join(save_dir,'data_processed.csv'), index=False)
+    return data
