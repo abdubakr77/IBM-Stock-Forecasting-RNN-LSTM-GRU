@@ -8,9 +8,8 @@ scaler = MinMaxScaler()
 
 def load_data(dataset_path:str):
     data = pd.read_csv(dataset_path)
-    data["Date"] = pd.to_datetime(data["Date"])
-    data = data.sort_values("Date").reset_index(drop=True)
-    return data
+    data.index = pd.to_datetime(data["Date"])
+    return data.sort_index()
 
 
 def remove_negative_prices(data):
@@ -21,7 +20,7 @@ def remove_negative_prices(data):
         data.drop(data.iloc[invalid_indices].index.values, inplace=True)
     else:
         print("no negative or zero price rows found")
-    return data.reset_index(drop=True)
+    return data.sort_index()
 
 
 def remove_invalid_ohlc(data):
@@ -32,7 +31,7 @@ def remove_invalid_ohlc(data):
         data.drop(data.iloc[invalid_indices].index.values, inplace=True)
     else:
         print("no invalid OHLC rows found")
-    return data.reset_index(drop=True)
+    return data.sort_index()
 
 
 def feature_engineering(data):
@@ -40,7 +39,7 @@ def feature_engineering(data):
     data["High Low Range"] = data["High"] - data["Low"]
     data["Open Close Range"] = (data["Close"] - data["Open"]).abs()
     data = calculate_volatility(data, 5)
-    return data[['Date', 'Open', 'High', 'Low', 'Close', "Daily Return", 'Volume', "Volatility", "Open Close Range", "High Low Range"]]
+    return data[['Open', 'High', 'Low', 'Close', "Daily Return", 'Volume', "Volatility", "Open Close Range", "High Low Range"]]
 
 
 def remove_return_outliers(data, upper=0.3, lower=-0.2):
@@ -53,7 +52,7 @@ def remove_return_outliers(data, upper=0.3, lower=-0.2):
         print("no return outlier rows found")
     data = data[mask]
     data = data.drop(columns=["Daily Return"])
-    return data.reset_index(drop=True)
+    return data.sort_index()
 
 
 def preprocess_pipeline(data, save_dir = os.getcwd()):
@@ -85,10 +84,10 @@ def preprocess_pipeline(data, save_dir = os.getcwd()):
 
 def split_data(data,train_year,valid_year,test_year=None):
     data = data.copy()
-    data.index = data["Date"].dt.year
-    train_set = data.loc[:train_year].values
-    valid_set = data.loc[train_year+1:valid_year].values
-    test_set = data.loc[valid_year+1:test_year if test_year else data.index[-1]].values
+    train_set = data.loc[:str(train_year)].values
+    valid_set = data.loc[str(train_year+1):str(valid_year)].values
+    test_set = data.loc[str(valid_year+1):str(test_year) if test_year else data.index[-1]].values
+    print('Splitted Successfully to train/valid/test splits!')
     return train_set, valid_set, test_set
 
 
@@ -96,6 +95,7 @@ def norm_transform(train_set,valid_set,test_set):
     train_set_scaled = scaler.fit_transform(train_set)
     valid_set_scaled = scaler.transform(valid_set)
     test_set_scaled = scaler.transform(test_set)
+    print('Normalization Transfromed Successfully!')
     return train_set_scaled, valid_set_scaled, test_set_scaled
 
 
@@ -105,4 +105,5 @@ def create_sequences(data_set_scaled, timesteps=60):
         X.append(data_set_scaled[i - timesteps:i])
         y.append(data_set_scaled[i])
 
+    print(f'Sequences Created Successfully, Sequences Counts: {len(X)}')
     return np.array(X), np.array(y)
