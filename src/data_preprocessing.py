@@ -2,6 +2,9 @@
 from src.utils import check_negative_prices, check_ohlc_validity, calculate_volatility
 import pandas as pd
 import os
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
 
 def load_data(dataset_path:str):
     data = pd.read_csv(dataset_path)
@@ -87,3 +90,10 @@ def split_data(data,train_year,valid_year,test_year=None):
     valid_set = data.loc[train_year+1:valid_year].values
     test_set = data.loc[valid_year+1:test_year if test_year else data.index[-1]].values
     return train_set, valid_set, test_set
+
+
+def norm_transform(train_set,valid_set,test_set):
+    train_set_scaled = scaler.fit_transform(train_set)
+    valid_set_scaled = scaler.transform(valid_set)
+    test_set_scaled = scaler.transform(test_set)
+    return train_set_scaled, valid_set_scaled, test_set_scaled
