@@ -31,3 +31,17 @@ def remove_invalid_ohlc(data):
     return data.reset_index(drop=True)
 
 
+def remove_return_outliers(data, upper=0.3, lower=-0.2):
+    data = data.copy()
+    data["daily_return"] = data["Close"].pct_change()
+    mask = (data["daily_return"] < upper) & (data["daily_return"] > lower) | (data["daily_return"].isna())
+    removed = len(data) - mask.sum()
+    if removed:
+        print(f"return outlier rows found: {removed}, removing them")
+    else:
+        print("no return outlier rows found")
+    data = data[mask]
+    data = data.drop(columns=["daily_return"])
+    return data.reset_index(drop=True)
+
+
