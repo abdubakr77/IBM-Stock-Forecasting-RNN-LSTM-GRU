@@ -1,6 +1,13 @@
 """Shared helper functions used across the project."""
 
+import pickle
 import numpy as np
+import pandas as pd
+
+def load_data(dataset_path:str):
+    data = pd.read_csv(dataset_path)
+    data.index = pd.to_datetime(data["Date"])
+    return data.sort_index()
 
 def count_outliers_iqr(series):
     q1 = series.quantile(0.25)
