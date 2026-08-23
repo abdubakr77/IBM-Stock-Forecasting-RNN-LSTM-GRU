@@ -1,15 +1,11 @@
 """Load raw IBM stock data, clean it, scale it, and create train/valid/test sequences."""
 from src.utils import check_negative_prices, check_ohlc_validity, calculate_volatility
-import pandas as pd
 import os
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler()
+import pickle
 
-def load_data(dataset_path:str):
-    data = pd.read_csv(dataset_path)
-    data.index = pd.to_datetime(data["Date"])
-    return data.sort_index()
+scaler = MinMaxScaler()
 
 
 def remove_negative_prices(data):
@@ -83,7 +79,6 @@ def preprocess_pipeline(data, save_dir = os.getcwd()):
     return data
 
 def split_data(data,train_year,valid_year,test_year=None):
-    data = data.copy()
     train_set = data.loc[:str(train_year)].values
     valid_set = data.loc[str(train_year+1):str(valid_year)].values
     test_set = data.loc[str(valid_year+1):str(test_year) if test_year else data.index[-1]].values
@@ -111,3 +106,42 @@ def create_sequences(data_set_scaled, timesteps=60):
 
 def reshape_data(X_data, timesteps, num_features):
     return X_data.reshape(-1,timesteps,num_features)
+
+
+def prepare_model_data(data,year_splits:list,timesteps,num_features, save_dir=os.getcwd()):
+    train_set, valid_set, test_set = split_data(data,year_splits[0],year_splits[1],year_splits[2])
+
+    train_set_scaled, valid_set_scaled, test_set_scaled = norm_transform(train_set, valid_set, test_set)
+
+    X_train , y_train = create_sequences(train_set_scaled,timesteps)
+
+    valid_input = np.concat([train_set_scaled[-timesteps:],valid_set_scaled])
+    X_valid , y_valid = create_sequences(valid_input,timesteps)
+
+    test_input = np.concat([valid_set_scaled[-timesteps:],test_set_scaled])
+    X_test , y_test = create_sequences(test_input,timesteps)
+
+    X_train, X_valid, X_test = (reshape_data(X_train, timesteps, num_features), 
+                                reshape_data(X_valid, timesteps, num_features), 
+                                reshape_data(X_test, timesteps, num_features))
+
+
+    all_data = {
+        'X_train': X_train,
+        'y_train': y_train,
+        'X_valid': X_valid,
+        'y_valid': y_valid,  
+        'X_test': X_test,
+        'y_test': y_test
+    }
+
+    with open(os.path.join(save_dir,'all_model_data.pkl'), 'wb') as f:
+        pickle.dump(all_data, f)
+
+    print("All data successfully saved in a single file!")
+
+    return (
+        all_data['X_train'], all_data['y_train'],
+        all_data['X_val'], all_data['y_val'],
+        all_data['X_test'], all_data['y_test']
+    )
