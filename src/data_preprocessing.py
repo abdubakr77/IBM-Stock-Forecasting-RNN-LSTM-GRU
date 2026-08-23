@@ -79,3 +79,11 @@ def preprocess_pipeline(data, save_dir = os.getcwd()):
     if save_dir:
         data.to_csv(os.path.join(save_dir,'data_processed.csv'), index=False)
     return data
+
+def split_data(data,train_year,valid_year,test_year=None):
+    data = data.copy()
+    data.index = data["Date"].dt.year
+    train_set = data.loc[:train_year].values
+    valid_set = data.loc[train_year+1:valid_year].values
+    test_set = data.loc[valid_year+1:test_year if test_year else data.index[-1]].values
+    return train_set, valid_set, test_set
