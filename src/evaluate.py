@@ -30,3 +30,14 @@ def show_all_history_plots(all_history:dict, save_dir=os.getcwd()):
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'all_models_loss_mse_comparison.png'))
     plt.show()
+
+
+def evaluate_all_models(models:list, X_test, y_test):
+    results = {}
+
+    for model in models:
+        model_name = model.layers[0].name.upper()
+        loss, mse = model.evaluate(X_test, y_test, verbose=0)
+        print(f"{model_name} - loss: {loss:.4f}, mse: {mse:.4f}")
+        results[model_name] = {"loss": loss, "mse": mse}
+    return results
