@@ -49,10 +49,10 @@ def load_model_data(file_path):
     with open(file_path, 'rb') as f:
         all_data = pickle.load(f)
         
-    print("All data successfully loaded and ready for the model!")
+    print("Scaler & All data successfully loaded and ready for the model!")
     
     return (
         all_data['X_train'], all_data['y_train'],
-        all_data['X_val'], all_data['y_val'],
+        all_data['X_valid'], all_data['y_valid'],
         all_data['X_test'], all_data['y_test']
     )
