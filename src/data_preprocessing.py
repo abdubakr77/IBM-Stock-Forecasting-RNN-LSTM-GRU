@@ -83,7 +83,11 @@ def preprocess_pipeline(data, save_dir = os.getcwd()):
 def split_data(data,train_year,valid_year,test_year=None):
     train_set = data.loc[:str(train_year)].values
     valid_set = data.loc[str(train_year+1):str(valid_year)].values
-    test_set = data.loc[str(valid_year+1):str(test_year) if test_year else data.index[-1]].values
+
+    if test_year is None:
+        test_year = data['Date'].dt.year.iloc[-1]
+
+    test_set = data.loc[str(valid_year+1):str(test_year)].values
     print('Splitted Successfully to train/valid/test splits!')
     return train_set, valid_set, test_set
 
@@ -96,18 +100,28 @@ def norm_transform(train_set, valid_set, test_set):
     return train_set_scaled, valid_set_scaled, test_set_scaled
 
 
-def inverse_target(scaler, scaled_values, num_features):
+def inverse_target(scaler, scaled_values, target_idx, num_features=None):
+    scaled_values = np.asarray(scaled_values).reshape(-1, 1)
+
+    if scaler.n_features_in_ == 1:
+        return scaler.inverse_transform(scaled_values).flatten()
+
+    if num_features is None:
+        num_features = scaler.n_features_in_
+
     dummy = np.zeros((len(scaled_values), num_features))
-    dummy[:, 3] = scaled_values.flatten()
+    dummy[:, target_idx] = scaled_values.flatten()
+
     inversed = scaler.inverse_transform(dummy)
-    return inversed[:, 3]
+
+    return inversed[:, target_idx]
 
 
-def create_sequences(data_set_scaled, timesteps=60):
+def create_sequences(data_set_scaled, target_idx, timesteps=60):
     X , y = [], []
     for i in range(timesteps, len(data_set_scaled)):
         X.append(data_set_scaled[i - timesteps:i])
-        y.append(data_set_scaled[i,3])
+        y.append(data_set_scaled[i,target_idx])
 
     print(f'Sequences Created Successfully, Sequences Counts: {len(X)}')
     return np.array(X), np.array(y)
@@ -117,18 +131,18 @@ def reshape_data(X_data, timesteps, num_features):
     return X_data.reshape(-1,timesteps,num_features)
 
 
-def prepare_model_data(data,year_splits:list,timesteps,num_features, save_dir=os.getcwd()):
+def prepare_model_data(data,target_index,year_splits:list,timesteps,num_features, save_dir=os.getcwd()):
     train_set, valid_set, test_set = split_data(data,year_splits[0],year_splits[1],year_splits[2])
 
     train_set_scaled, valid_set_scaled, test_set_scaled = norm_transform(train_set, valid_set, test_set)
 
-    X_train , y_train = create_sequences(train_set_scaled,timesteps)
+    X_train , y_train = create_sequences(train_set_scaled,target_index,timesteps)
 
     valid_input = np.concat([train_set_scaled[-timesteps:],valid_set_scaled])
-    X_valid , y_valid = create_sequences(valid_input,timesteps)
+    X_valid , y_valid = create_sequences(valid_input,target_index,timesteps)
 
     test_input = np.concat([valid_set_scaled[-timesteps:],test_set_scaled])
-    X_test , y_test = create_sequences(test_input,timesteps)
+    X_test , y_test = create_sequences(test_input,target_index,timesteps)
 
     X_train, X_valid, X_test = (reshape_data(X_train, timesteps, num_features), 
                                 reshape_data(X_valid, timesteps, num_features), 
