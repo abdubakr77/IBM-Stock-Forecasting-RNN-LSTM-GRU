@@ -41,3 +41,18 @@ def evaluate_all_models(models:list, X_test, y_test):
         print(f"{model_name} - loss: {loss:.4f}, mse: {mse:.4f}")
         results[model_name] = {"loss": loss, "mse": mse}
     return results
+
+
+def generate_comparison_plots(metrics_df, save_dir=os.getcwd()):
+    metrics_cols = ["MSE", "RMSE", "MAE", "MAPE"]
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    for ax, col in zip(axes.flatten(), metrics_cols):
+        ax.bar(metrics_df["Model"], metrics_df[col])
+        ax.set_title(col)
+        ax.set_xlabel("Model")
+        ax.set_ylabel(col)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_dir, "metrics_comparison.png"))
+    plt.show()
