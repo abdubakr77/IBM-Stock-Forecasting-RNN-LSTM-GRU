@@ -88,7 +88,7 @@ def split_data(data,train_year,valid_year,test_year=None):
     return train_set, valid_set, test_set
 
 
-def norm_transform(train_set,valid_set,test_set):
+def norm_transform(train_set, valid_set, test_set):
     train_set_scaled = scaler.fit_transform(train_set)
     valid_set_scaled = scaler.transform(valid_set)
     test_set_scaled = scaler.transform(test_set)
@@ -96,11 +96,18 @@ def norm_transform(train_set,valid_set,test_set):
     return train_set_scaled, valid_set_scaled, test_set_scaled
 
 
+def inverse_target(scaler, scaled_values, num_features):
+    dummy = np.zeros((len(scaled_values), num_features))
+    dummy[:, 3] = scaled_values.flatten()
+    inversed = scaler.inverse_transform(dummy)
+    return inversed[:, 3]
+
+
 def create_sequences(data_set_scaled, timesteps=60):
     X , y = [], []
     for i in range(timesteps, len(data_set_scaled)):
         X.append(data_set_scaled[i - timesteps:i])
-        y.append(data_set_scaled[i])
+        y.append(data_set_scaled[i,3])
 
     print(f'Sequences Created Successfully, Sequences Counts: {len(X)}')
     return np.array(X), np.array(y)
@@ -140,7 +147,10 @@ def prepare_model_data(data,year_splits:list,timesteps,num_features, save_dir=os
     with open(os.path.join(save_dir,'all_model_data.pkl'), 'wb') as f:
         pickle.dump(all_data, f)
 
-    print("All data successfully saved in a single file!")
+    with open(os.path.join(save_dir,'scaler.pkl'), 'wb') as f:
+        pickle.dump(scaler, f)
+
+    print("Scaler & All data successfully saved in a single file!")
 
     return (
         all_data['X_train'], all_data['y_train'],
