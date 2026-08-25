@@ -4,13 +4,11 @@ from keras.models import Sequential
 from keras.layers import Dense,RNN,SimpleRNNCell,Dropout
 from keras.optimizers import AdamW
 from keras.callbacks import EarlyStopping
-import os
 
 def build_rnn(timesteps, num_features,dropout=0,lr=0.0005,weight_decay=0.0005,patience=10, load_weights_path=None):
     model = Sequential([
         RNN(SimpleRNNCell(64), return_sequences=True, input_shape=(timesteps, num_features)),
-        Dropout(dropout),
-        RNN(SimpleRNNCell(16)),
+        RNN(SimpleRNNCell(32)),
         Dropout(dropout),
         Dense(1, activation='linear')
     ])
