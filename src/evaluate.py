@@ -69,7 +69,7 @@ def evaluate_and_predict(models: list, X_test, y_test, scaler, target_index, num
         plt.show()
 
     metrics_df = pd.DataFrame(all_metrics)
-    metrics_df.to_csv(os.path.join(save_dir, "metrics_comparisons.csv"), index=False)
+    metrics_df.to_csv(os.path.join(save_dir, "metrics_comparison.csv"), index=False)
     print("Metrics saved successfully")
 
     return metrics_df, results
