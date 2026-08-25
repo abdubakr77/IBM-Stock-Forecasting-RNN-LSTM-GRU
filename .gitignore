@@ -226,6 +226,7 @@ data/processed/*
 
 # Models
 models/*.keras
+models/*.pkl
 !models/.gitkeep
 
 # OS
