@@ -225,7 +225,7 @@ data/processed/*
 !data/processed/.gitkeep
 
 # Models
-models/*.h5
+models/*.keras
 !models/.gitkeep
 
 # OS
