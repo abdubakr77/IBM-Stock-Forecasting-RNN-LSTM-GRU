@@ -1,8 +1,9 @@
 """Train the RNN, LSTM, and GRU models and save them to the models/ directory."""
 
 import os
+import pickle
 
-def train_model(models, train_list, valid_list, epochs, batch_size, callbacks, save_dir=os.getcwd()):
+def train_model(models:list, train_list, valid_list, epochs, batch_size, callbacks, save_dir=os.getcwd()):
 
     all_trained_models = {}
     all_models_history = {}
@@ -21,12 +22,13 @@ def train_model(models, train_list, valid_list, epochs, batch_size, callbacks, s
                             callbacks=[callbacks],
                             shuffle=False)
 
-        model.save(os.path.join(save_dir,f"trained_model_{model_name}.keras"))
+        model.save(os.path.join(save_dir,f"trained_model_{model_name}.keras"),overwrite=True)
+        with open(os.path.join(save_dir,f'{model_name}_history.pkl'), 'wb') as f:
+            pickle.dump(history, f)
+
         all_trained_models[model_name] = model
         all_models_history[f"{model_name}_history"] = history
         
         print(f'\n{model_name} Saved Successfully!')
-
-        print('\n\n')
 
     return all_trained_models , all_models_history
