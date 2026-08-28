@@ -3,6 +3,7 @@
 import pickle
 import numpy as np
 import pandas as pd
+from statsmodels.graphics.tsaplots import plot_acf
 
 def load_data(dataset_path:str):
     data = pd.read_csv(dataset_path)
@@ -41,6 +42,11 @@ def calculate_bullish_bearish(data):
                             np.where(data["Close"] < data["Open"], "bearish", "neutral"))
     print(data["candle_type"].value_counts())
     return data
+
+
+def show_acf(target:pd.Series,lags=100,show_vlines=False):
+    plot_acf(target,lags=lags,use_vlines=show_vlines)
+
 
 def load_model_data(file_path):
     """
