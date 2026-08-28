@@ -25,7 +25,7 @@ def build_lstm(timesteps, num_features,dropout=0,lr=0.0005,weight_decay=0.0005,p
     return model, callbacks
 
 
-def build_attention_with_gru(timesteps, num_features,dropout=0,lr=0.0001,weight_decay=0.0001,patience=10, load_weights_path=None):
+def build_attention_with_lstm(timesteps, num_features,dropout=0,lr=0.0001,weight_decay=0.0001,patience=10, load_weights_path=None):
 
     inputs = Input((timesteps, num_features))
 
