@@ -35,12 +35,11 @@ def show_all_history_plots(all_history:dict, save_dir=os.getcwd()):
     plt.show()
 
 
-def evaluate_and_predict(models: list, X_test, y_test, scaler, target_index, num_features, save_dir=os.getcwd()):
+def evaluate_and_predict(models: list, X_test, y_test, scaler, target_index, num_features, models_names:list,save_dir=os.getcwd()):
     results = {}
     all_metrics = []
 
-    for model in models:
-        model_name = model.layers[0].name.upper()
+    for model, model_name in zip(models,models_names):
 
         loss, mse = model.evaluate(X_test, y_test, verbose=0)
 
