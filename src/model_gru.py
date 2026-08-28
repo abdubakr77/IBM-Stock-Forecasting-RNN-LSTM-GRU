@@ -18,7 +18,7 @@ def build_gru(timesteps, num_features,dropout=0,lr=0.0005,weight_decay=0.0005,pa
     optim = AdamW(learning_rate=lr, weight_decay=weight_decay)
     model.compile(optimizer=optim, loss='mse', metrics=['mse'])
     model.summary()
-    callbacks = EarlyStopping('val_loss', patience=patience, restore_best_weights=True)
+    callbacks = EarlyStopping('val_loss', patience=patience, restore_best_weights=True,verbose=1)
 
     if load_weights_path: model.load_weights(load_weights_path)
 
@@ -48,7 +48,7 @@ def build_attention_with_gru(timesteps, num_features,dropout=0,lr=0.0001,weight_
     optim = AdamW(learning_rate=lr, weight_decay=weight_decay)
     model.compile(optimizer=optim, loss='mse', metrics=['mse'])
     model.summary()
-    callbacks = EarlyStopping('val_loss', patience=patience, restore_best_weights=True)
+    callbacks = EarlyStopping('val_loss', patience=patience, restore_best_weights=True,verbose=1)
 
     if load_weights_path: model.load_weights(load_weights_path)
 
