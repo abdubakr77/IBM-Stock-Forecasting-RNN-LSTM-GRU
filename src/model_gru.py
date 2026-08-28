@@ -34,7 +34,7 @@ def build_attention_with_gru(timesteps, num_features,dropout=0,lr=0.0001,weight_
 
     atten_out = Attention()([x,x])
 
-    x = GRU(32)(atten_out)
+    x = GRU(32,return_sequences=True)(atten_out)
     x = Dropout(dropout)(x)
 
     atten_out = Attention()([x,x])
